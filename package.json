@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "qunit": "^2.20.0",
+    "underscore": "^1.13.6",
+    "webpack": "^5.89.0"
+  },
+  "name": "libdagitty",
+  "description": "JavaScript library supporting causal inference. Underlies the dagitty web application and the dagitty R package.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
+  },
+  "scripts": {
+    "test": "qunit",
+    "build": "webpack --mode production"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
