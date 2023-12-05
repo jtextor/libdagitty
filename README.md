@@ -1,6 +1,6 @@
 # libdagitty
 
-
+JavaScript library supporting causal inference. Underlies the dagitty web application and the dagitty R package.
 
 ## Getting started
 
