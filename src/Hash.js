@@ -19,9 +19,7 @@ Object.assign( Hash.prototype, {
 		delete this.kv[key]
 	},
 	values : function(){
-		return Object.keys( this.kv ).map( function(k){
-			return this.kv[k]
-		}, this )
+		return Object.values( this.kv )
 	},
 	keys : function(){
 		return Object.keys( this.kv )

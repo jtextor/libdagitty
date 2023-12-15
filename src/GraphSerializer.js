@@ -152,46 +152,6 @@ const GraphSerializer = {
 		return r
 	},
 
-	toLavaan : function( g ){
-		var ee = g.getEdges(), edgetype, 
-			r = "# Please set lavaan's fixed.x appopriately!\n"
-		var v_nonzero_degree = {}
-		_.each( ee, function(e){
-			edgetype = ""
-			var reverse = true
-			if( e.directed == Graph.Edgetype.Directed ){
-				if( g.isLatentNode( e.v1 ) ){
-					if( g.isLatentNode( e.v2 ) ){
-						edgetype = "~"
-					} else {
-						edgetype = "=~"
-						reverse = false
-					}
-				} else {
-					edgetype = "~"
-				}
-			} else if( e.directed == Graph.Edgetype.Bidirected ){
-				edgetype = " ~~ "
-			} else {
-				throw( "Unsupported edge for lavaan conversion : " + e.toString() )
-			}
-			if( reverse ){
-				r += e.v2.id + edgetype + e.v1.id+ "\n"
-			} else {
-				r += e.v1.id + edgetype + e.v2.id+ "\n"
-			}
-			v_nonzero_degree[e.v1.id] = 1
-			v_nonzero_degree[e.v2.id] = 1
-		} )
-		// include vertices without adjacent edges as well
-		_.each( _.difference( _.pluck(g.getVertices(),"id"), _.keys( v_nonzero_degree ) ),
-			function(vid){
-				r += vid+" ~~ "+vid+"\n"
-			}
-		)
-		return r
-	},
-
 	toTikz : function( g, precision ){
 		if( precision == null ){ precision = 5 }
 		var vv = g.getVertices(), i, r = "", ee = g.getEdges(), v_index = [], edgetype,
@@ -276,8 +236,95 @@ const GraphSerializer = {
 	toSingular : function( g ){
 		return this.singularSyntax( g, true, true )
 	},
+	
+	toJavascriptMultilineString : function( g ){
+		var gt = g.toString().split("\n"), i, r_str = []
+		for( i = 0 ; i < gt.length ; i ++ ){
+			r_str.push(gt[i])
+		}
+		return "\t\""+r_str.join("\\n\"+\n\t\"")+"\""
+	},
 
-	polynomialVariety : function( g, use_ids_as_labels, standardized ){
+	//Exports the graph as igraph edge list with the attributes needed for the causaleffect package.
+	//Latent nodes are replaced by bidirectional edges, only directed and bidirectional edges are allowed
+	toCausalEffectIgraphRCode : function (g){
+		var gbidi = GraphTransformer.contractLatentNodes(g)
+		var edgesresult = []
+		var bidirectional = []
+		var withEdges = new Hash()
+		_.each(gbidi.getEdges(), function(e){
+			withEdges.set(e.v1.id, true)
+			withEdges.set(e.v2.id, true)
+			edgesresult.push( GraphSerializer.quoteVid(e.v1.id) + "," + GraphSerializer.quoteVid(e.v2.id) )
+			if (e.directed == Graph.Edgetype.Bidirected) {
+				bidirectional.push(edgesresult.length)
+				edgesresult.push( GraphSerializer.quoteVid(e.v2.id) + "," + GraphSerializer.quoteVid(e.v1.id) )
+				bidirectional.push(edgesresult.length)
+			}
+		} )
+		
+		var result = edgesresult.length > 0 ? "set.edge.attribute(graph = graph_from_edgelist(matrix(c( "+edgesresult.join(", ")+" ),nc = 2,byrow = TRUE)), name = \"description\", index = c("+bidirectional.join(", ")+"), value = \"U\")" : "make_empty_graph()"
+		
+		var withoutEdges = _.filter(g.getVertices(), function(v){return !withEdges.get(v.id)})
+		if (withoutEdges.length > 0) result = result + " + vertices(" + withoutEdges.map(function(v){ return GraphSerializer.quoteVid(v.id) }).join(", ")+  ")"
+		
+		return result
+	},
+	
+	//Exports R-code to find the causal effect from the current exposures to current outcomes using the causaleffect package
+	toCausalEffectRCode : function(g){
+		var nodeList = function(a) { return "c(" + a.map(function(v){return GraphSerializer.quoteVid(v.id)}).join(", ") + ")" }
+		return "causal.effect(y = "+nodeList(g.getTargets())+", x = "+nodeList(g.getSources())+", G = "+this.toCausalEffectIgraphRCode(g)+")"
+	}
+}; // eslint-disable-line 
+
+
+module.exports = GraphSerializer
+
+const Graph = require("./Graph.js")
+const GraphAnalyzer = require("./GraphAnalyzer.js")
+
+GraphSerializer.toLavaan = function( g ){
+		var ee = g.getEdges(), edgetype, 
+			r = "# Please set lavaan's fixed.x appopriately!\n"
+		var v_nonzero_degree = {}
+		_.each( ee, function(e){
+			edgetype = ""
+			var reverse = true
+			if( e.directed == Graph.Edgetype.Directed ){
+				if( g.isLatentNode( e.v1 ) ){
+					if( g.isLatentNode( e.v2 ) ){
+						edgetype = "~"
+					} else {
+						edgetype = "=~"
+						reverse = false
+					}
+				} else {
+					edgetype = "~"
+				}
+			} else if( e.directed == Graph.Edgetype.Bidirected ){
+				edgetype = " ~~ "
+			} else {
+				throw( "Unsupported edge for lavaan conversion : " + e.toString() )
+			}
+			if( reverse ){
+				r += e.v2.id + edgetype + e.v1.id+ "\n"
+			} else {
+				r += e.v1.id + edgetype + e.v2.id+ "\n"
+			}
+			v_nonzero_degree[e.v1.id] = 1
+			v_nonzero_degree[e.v2.id] = 1
+		} )
+		// include vertices without adjacent edges as well
+		_.each( _.difference( _.pluck(g.getVertices(),"id"), _.keys( v_nonzero_degree ) ),
+			function(vid){
+				r += vid+" ~~ "+vid+"\n"
+			}
+		)
+		return r
+	}
+
+GraphSerializer.polynomialVariety = function( g, use_ids_as_labels, standardized ){
 		if( typeof use_ids_as_labels === "undefined" ){
 			use_ids_as_labels = false
 		}
@@ -324,9 +371,9 @@ const GraphSerializer = {
 			}
 		}
 		return [v_elements.join(",\n"),parameters,values]
-	},
-	
-	toImplicationTestRCode : function( g, max_nr ){
+	}
+
+GraphSerializer.toImplicationTestRCode = function( g, max_nr ){
 		var imp, i, j, r_str
 		if( max_nr == null ){ max_nr = 1000 }
 		imp = GraphAnalyzer.listMinimalImplications( g, max_nr )
@@ -350,48 +397,5 @@ const GraphSerializer = {
 				"data.frame( implication=unlist(lapply(implications,tos)),\n\t\t"+
 				"pvalue=unlist( lapply( implications, tst ) ) )\n"+
 			"\n}"
-	},
-	
-	toJavascriptMultilineString : function( g ){
-		var gt = g.toString().split("\n"), i, r_str = []
-		for( i = 0 ; i < gt.length ; i ++ ){
-			r_str.push(gt[i])
-		}
-		return "\t\""+r_str.join("\\n\"+\n\t\"")+"\""
-	},
-
-	//Exports the graph as igraph edge list with the attributes needed for the causaleffect package.
-	//Latent nodes are replaced by bidirectional edges, only directed and bidirectional edges are allowed
-	toCausalEffectIgraphRCode : function (g){
-		var gbidi = GraphTransformer.contractLatentNodes(g)
-		var edgesresult = []
-		var bidirectional = []
-		var withEdges = new Hash()
-		_.each(gbidi.getEdges(), function(e){
-			withEdges.set(e.v1.id, true)
-			withEdges.set(e.v2.id, true)
-			edgesresult.push( GraphSerializer.quoteVid(e.v1.id) + "," + GraphSerializer.quoteVid(e.v2.id) )
-			if (e.directed == Graph.Edgetype.Bidirected) {
-				bidirectional.push(edgesresult.length)
-				edgesresult.push( GraphSerializer.quoteVid(e.v2.id) + "," + GraphSerializer.quoteVid(e.v1.id) )
-				bidirectional.push(edgesresult.length)
-			}
-		} )
-		
-		var result = edgesresult.length > 0 ? "set.edge.attribute(graph = graph_from_edgelist(matrix(c( "+edgesresult.join(", ")+" ),nc = 2,byrow = TRUE)), name = \"description\", index = c("+bidirectional.join(", ")+"), value = \"U\")" : "make_empty_graph()"
-		
-		var withoutEdges = _.filter(g.getVertices(), function(v){return !withEdges.get(v.id)})
-		if (withoutEdges.length > 0) result = result + " + vertices(" + withoutEdges.map(function(v){ return GraphSerializer.quoteVid(v.id) }).join(", ")+  ")"
-		
-		return result
-	},
-	
-	//Exports R-code to find the causal effect from the current exposures to current outcomes using the causaleffect package
-	toCausalEffectRCode : function(g){
-		var nodeList = function(a) { return "c(" + a.map(function(v){return GraphSerializer.quoteVid(v.id)}).join(", ") + ")" }
-		return "causal.effect(y = "+nodeList(g.getTargets())+", x = "+nodeList(g.getSources())+", G = "+this.toCausalEffectIgraphRCode(g)+")"
 	}
-}; // eslint-disable-line 
 
-
-module.exports = GraphSerializer

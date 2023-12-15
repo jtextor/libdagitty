@@ -1,9 +1,6 @@
 /* This is a namespace containing various methods that analyze a given
  * graph. These methods do not change the graph. */
 
-/* globals _,Graph,GraphTransformer,Hash */
-/* exported GraphAnalyzer */
-
 const Graph = require("./Graph.js")
 const Hash = require("./Hash.js")
 const { MPoly, MPolyHelper } = require("./MPolynomials.js")
@@ -193,8 +190,6 @@ const GraphAnalyzer = {
 		return i
 	},
 
-
-
 	isAdjustmentSetDirectEffect : function( g, Z ){
 		var gtype = g.getType()
 		if( gtype != "dag" ){
@@ -229,13 +224,14 @@ const GraphAnalyzer = {
 		} else {
 			S = _.map( S, Graph.getVertex, g )
 		}
-		if( S.length != 1 ){
+		var r = true
+		if( S.length > 1 ){
 			return null
 		}
-		var r = !this.dConnected( g, g.getSources(), S, g.getTargets().concat( Z ) )
-		if( r ){
-			r = r && this.isAdjustmentSet( g, Z, [] )
+		if( S.length == 1 ){
+			r = r && !this.dConnected( g, g.getSources(), S, g.getTargets().concat( Z ) )
 		}
+		r = r && this.isAdjustmentSet( g, Z, [] )
 		return r
 	},
 
@@ -2048,7 +2044,7 @@ GraphAnalyzer.isAdjustmentSet = function( g, Z, S ){
 		if( S == null ){
 			S = g.getSelectedNodes()
 		}
-		var Zg = _.map( Z, Graph.getVertex, g )
+		var Zg = _.map( Z, g.getVertex, g )
 		if( _.intersection( this.dpcp(g), Zg ).length > 0 ){
 			return false
 		}

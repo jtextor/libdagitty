@@ -86,15 +86,24 @@ QUnit.test( "adjustment in DAGs", function( assert ) {
 		return sep_2_str( GraphAnalyzer.listMsasDirectEffect( g ) )
 	})(), "{I}" )
 
-	assert.equal((function(){
-		var g = $p("dag{x[e] y[o] x<-z->y}")
-		return GraphAnalyzer.isAdjustmentSet(g,["z"])
-	})(), true)
+	var g = $p("dag{x[e] y[o] x<-z->y}")
+	assert.true(GraphAnalyzer.isAdjustmentSet(g,["z"]))
 
-	assert.equal((function(){
-		var g = $p("dag{x[e] y[o] x<->m<->y x->y}")
-		return GraphAnalyzer.isAdjustmentSet(g,["m"])
-	})(), false)
+	var g = $p("dag{ {x[e]} -> m -> {y[o]} }")
+	assert.false(GraphAnalyzer.isAdjustmentSet(g,["m"]))
+
+	var g = $p("dag{x[e] y[o] x<->m<->y x->y}")
+	assert.false(GraphAnalyzer.isAdjustmentSet(g,["m"]))
+
+	var g = GraphParser.parseDot("dag{ {x[e]}->m->{y[o]}->S }")
+	assert.true(GraphAnalyzer.isAdjustmentSet(g,[]))
+	assert.false(GraphAnalyzer.isAdjustmentSet(g,["m"]))
+	assert.false(GraphAnalyzer.isAdjustmentSetDirectEffect(g,[]))
+	assert.true(GraphAnalyzer.isAdjustmentSetDirectEffect(g,["m"]))
+	assert.true(GraphAnalyzer.isAdjustmentSetCausalOddsRatio(g,[],[]))
+	assert.false(GraphAnalyzer.isAdjustmentSetCausalOddsRatio(g,["m"],[]))
+	assert.true(GraphAnalyzer.isAdjustmentSetCausalOddsRatio(g,[],["S"]))
+	assert.false(GraphAnalyzer.isAdjustmentSetCausalOddsRatio(g,["m"],["S"]))
 
 	assert.equal(
 		sep_2_str( GraphAnalyzer.listMsasTotalEffect( TestGraphs.findExample("Polzer") ) ),

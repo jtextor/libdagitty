@@ -6,6 +6,7 @@ const GraphParser = require("./GraphParser.js")
 const GraphLayouter = require("./GraphLayouter.js")
 const { MPoly }  = require("./MPolynomials.js")
 const GraphTransformer = require("./GraphTransformer.js")
+const GraphGenerator = require("./GraphGenerator.js")
 
 
 module.exports = {
@@ -15,6 +16,7 @@ module.exports = {
 	"GraphAnalyzer" : GraphAnalyzer,
 	"GraphLayouter" : GraphLayouter,
 	"MPoly" : MPoly,
-	"GraphTransformer" : GraphTransformer
+	"GraphTransformer" : GraphTransformer,
+	"GraphGenerator" : GraphGenerator
 }
 
