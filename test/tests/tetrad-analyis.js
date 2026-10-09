@@ -7,7 +7,7 @@ const _ = require("underscore")
 
 const $p = (s) => GraphParser.parseGuess(s)
 
-QUnit.module( "dagitty" )
+QUnit.module('tetrad-analyis')
 
 QUnit.test( "tetrad analysis", function( assert ) {
 	assert.equal( function(){

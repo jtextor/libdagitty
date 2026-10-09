@@ -2,7 +2,7 @@
 const {Graph, GraphTransformer} = require("../../src/index.js")
 const _ = require("underscore")
 
-QUnit.module( "dagitty" )
+QUnit.module('graph-types')
 QUnit.test( "graph types", function( assert ) {
 	var graphs = {
 		graph : new Graph( "graph { x -- y -- z }" ),

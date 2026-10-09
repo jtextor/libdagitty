@@ -10,7 +10,7 @@ const _ = require("underscore")
 
 const TestGraphs = require("../test-graphs.js")
 
-QUnit.module('dagitty')
+QUnit.module('ancestry')
 
 QUnit.test( "ancestry", function( assert ) {
 	var shrier = TestGraphs.findExample("Shrier")

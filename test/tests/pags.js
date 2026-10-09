@@ -7,7 +7,7 @@ const TestGraphs = require("../test-graphs.js")
 const $p = (s) => GraphParser.parseGuess(s)
 
 
-QUnit.module('dagitty') 
+QUnit.module('pags')
 
 QUnit.test('miscellaneous PAG tests', assert => {
 	let g = GraphParser.parseGuess( "a -> b <- c" )

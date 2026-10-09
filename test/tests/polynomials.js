@@ -1,5 +1,7 @@
 const { MPoly } = require("../../src/index.js")
 
+QUnit.module('polynomials')
+
 QUnit.test( "multivariate polynomials", function( assert ) {
 	assert.equal(MPoly("0"), "0")
 	assert.equal(MPoly("1"), "1")

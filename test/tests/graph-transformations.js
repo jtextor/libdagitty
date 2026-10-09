@@ -7,6 +7,8 @@ const $p = (s) => GraphParser.parseGuess(s)
 const $es = (g) => GraphSerializer.toDotEdgeStatements(g)
 
 
+QUnit.module('graph-transformations')
+
 QUnit.test( "graph transformations", function( assert ) {
 	assert.equal(
 		$es(GraphTransformer.lineDigraph(

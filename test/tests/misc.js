@@ -31,7 +31,7 @@ function imp_2_str( imp ){
   return r.join("\n");
 }
 
-QUnit.module("dagitty")
+QUnit.module('misc')
 
 
 QUnit.test( "uncategorized tests", function( assert ) {

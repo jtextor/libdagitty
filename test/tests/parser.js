@@ -13,7 +13,7 @@ GraphParser.VALIDATE_GRAPH_STRUCTURE = true
 const $p = function(s){ return GraphParser.parseGuess(s) }
 const $es = function(g){ return GraphSerializer.toDotEdgeStatements(g) }
 
-QUnit.module('dagitty')
+QUnit.module('parser')
 
 QUnit.test( "parsing and serializing", function( assert ) {
 	// GraphParser.VALIDATE_GRAPH_STRUCTURE = false;

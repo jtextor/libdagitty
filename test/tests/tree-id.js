@@ -3,7 +3,7 @@ const { Graph, GraphParser, GraphAnalyzer } = require("../../src/index.js")
 
 const $p = (s) => GraphParser.parseGuess(s)
 
-QUnit.module( "dagitty" )
+QUnit.module('tree-id')
 
 QUnit.test( "treeID", function( assert ) {
 	//instrument

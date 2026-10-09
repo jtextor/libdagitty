@@ -5,7 +5,7 @@ const TestGraphs = require("../test-graphs.js")
 
 const $p = (s) => new Graph(s)
 
-QUnit.module("dagitty")
+QUnit.module('dseparation')
 QUnit.test( "dseparation", function( assert ) {
 	assert.equal((function(){
 		var g = $p( "digraph G { x <-> m -> y }" )

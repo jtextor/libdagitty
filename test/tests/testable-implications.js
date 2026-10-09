@@ -16,7 +16,7 @@ const imp_2_str = ( imp ) => {
   return r.join("\n");
 }
 
-QUnit.module("dagitty")
+QUnit.module('testable-implications')
 
 QUnit.test( "testable implications", function( assert ) {
 	assert.equal((function(){

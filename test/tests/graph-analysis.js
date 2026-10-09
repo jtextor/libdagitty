@@ -9,6 +9,8 @@ const TestGraphs = require("../test-graphs.js")
 
 const $p = (s) => GraphParser.parseGuess(s)
 
+QUnit.module('graph-analysis')
+
 QUnit.test( "graph analysis", function( assert ) {
 	var g = $p("dag{x->y}")
 	assert.equal(GraphAnalyzer.isEdgeVisible(g,g.getEdge("x","y")),true)

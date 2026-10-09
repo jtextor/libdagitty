@@ -16,7 +16,7 @@ const sep_2_str = (ss) => {
    return "{"+r.join("}\n{")+"}";
 }
 
-QUnit.module('dagitty')
+QUnit.module('separators')
 
 QUnit.test( "separators", function( assert ) {
 	let g, gm

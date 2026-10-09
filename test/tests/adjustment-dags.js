@@ -24,7 +24,7 @@ const sep_2_str = (ss) => {
    return "{"+r.join("}\n{")+"}";
 }
 
-QUnit.module("dagitty")
+QUnit.module('adjustment-dags')
 
 QUnit.test( "adjustment in DAGs", function( assert ) {
 

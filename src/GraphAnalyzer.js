@@ -2021,16 +2021,29 @@ const GraphAnalyzer = {
 
 module.exports = GraphAnalyzer
 
-
-	/**
-      * Determines whether Z is a valid adjustment set in g, with possible selection bias
-      * due to conditioning on nodes S. The nodes S and/or Z can be omitted, in which case they are
-      * taken as pre-defined from the DAG syntax (using the "adjusted" or "selected" keywords)
-      */ 
-
 const GraphTransformer = require("./GraphTransformer.js")
 
+
+
+/**
+      Determines whether Z is a valid adjustment set in g, with 
+      possible selection bias due to conditioning on nodes S. 
+      The nodes S and/or Z can be omitted, in which case they are
+      taken as pre-defined from the DAG syntax (using the "adjusted" 
+      or "selected" keywords).
+      This adjustment criterion corresponds to the generalized
+      adjustment criterion (Perkovic et al, 2018; 
+      http://www.jmlr.org/papers/volume18/16-319/16-319.pdf) and
+      the version extended for selection bias by Correa and 
+      Bareinboim (doi.org/10.1609/aaai.v31i1.11060). 
+
+      Specifically, the version implemented here is Definition 9 from
+        Correa, Tian and Barenboim (AAAI 2018), i.e.,
+        https://cdn.aaai.org/ojs/12125/12125-13-15653-1-2-20201228.pdf
+      */ 
+
 GraphAnalyzer.isAdjustmentSet = function( g, Z, S ){
+    // Setup and preparation of required node sets
 		var gtype = g.getType()
 		if( gtype != "dag" && gtype != "pdag" && gtype != "mag" && gtype != "pag" ){
 			throw( "Cannot compute adjustment sets for graph of type "+gtype )
@@ -2045,15 +2058,24 @@ GraphAnalyzer.isAdjustmentSet = function( g, Z, S ){
 			S = g.getSelectedNodes()
 		}
 		var Zg = _.map( Z, g.getVertex, g )
+
+    // Check 1: No adjustment for (descendents of) mediators or
+    // outcome? 
 		if( _.intersection( this.dpcp(g), Zg ).length > 0 ){
 			return false
 		}
+
+    // Check 2: Are X and Y d-separated in the proper back-door graph
+    // given Z?
 		var gbd = GraphTransformer.backDoorGraph(g)
 		var Sgbd = _.map( S, gbd.getVertex, gbd )
 		var Zgbd = _.map( Zg, gbd.getVertex, gbd )
-		var r = !this.dConnected( gbd, gbd.getSources(), gbd.getTargets(), Zgbd.concat( Sgbd ) )
+		var r = !this.dConnected( gbd, gbd.getSources(), gbd.getTargets(), 
+      Zgbd.concat( Sgbd ) )
+
+    // Check 3 (for selection bias): Is Y independent of X given S?
 		if( S.length > 0 ){
-			r = r && !this.dConnected( gbd, gbd.getTargets(), Sgbd )
+			r = r && !this.dConnected( gbd, gbd.getTargets(), Sgbd ) 
 		}
 		return r
 	}

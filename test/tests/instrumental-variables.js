@@ -12,7 +12,7 @@ const iv_2_str = ( ivs ) => {
 	} )
 	return r.sort().join("\n")
 }
-QUnit.module("dagitty")
+QUnit.module('instrumental-variables')
 
 QUnit.test( "instrumental variables", function( assert ) {
 	assert.equal((function(){

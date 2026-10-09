@@ -8,7 +8,7 @@ const $p = (s) => GraphParser.parseGuess(s)
 const $es = (g) => GraphSerializer.toDotEdgeStatements(g)
 
 
-QUnit.module('dagitty') 
+QUnit.module('biasing-paths')
 
 QUnit.test( "biasing paths in DAGs (allowing <->)", function( assert ) {
 	assert.equal((function(){

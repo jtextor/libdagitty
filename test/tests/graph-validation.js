@@ -2,7 +2,7 @@
 const {Graph,GraphAnalyzer,GraphParser} = require("../../src/index.js")
 
 
-QUnit.module( "dagitty" )
+QUnit.module('graph-validation')
 QUnit.test( "graph validation", function( assert ) {
 
 	GraphParser.VALIDATE_GRAPH_STRUCTURE = false

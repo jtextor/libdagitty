@@ -16,7 +16,7 @@ const sep_2_str = (ss) => {
    return "{"+r.join("}\n{")+"}";
 }
 
-QUnit.module("dagitty")
+QUnit.module('adjustment-other')
 
 QUnit.test( "adjustment in other graphs", function( assert ) {
 	assert.equal( sep_2_str(GraphAnalyzer.listMsasTotalEffect(

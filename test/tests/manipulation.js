@@ -9,6 +9,8 @@ const {
 const $p = (s) => GraphParser.parseGuess(s)
 const $es = (g) => GraphSerializer.toDotEdgeStatements(g)
 
+QUnit.module('manipulation')
+
 QUnit.test( "graph manipulation", function( assert ) {
 
 	var g = $p( "dag G { x <-> x }" )
